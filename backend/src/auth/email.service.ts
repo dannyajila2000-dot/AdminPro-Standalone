@@ -32,7 +32,7 @@ export class EmailService {
   async enviarInvitacion(email: string, nombre: string, activarUrl: string) {
     await this.enviar(
       email,
-      'Te invitaron a PG Planada Gym',
+      'Te invitaron a GymPro',
       `
         <p>Hola ${nombre},</p>
         <p>Te crearon una cuenta. Haz click en el siguiente enlace para configurar tu contraseña (vence en 1 hora):</p>
@@ -114,7 +114,7 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail({
-        from: `"PG Planada Gym" <${process.env.GMAIL_USER}>`,
+        from: `"GymPro" <${process.env.GMAIL_USER}>`,
         to,
         subject,
         html,

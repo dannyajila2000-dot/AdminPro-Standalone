@@ -19,7 +19,7 @@ export class EmpresasService {
 
   /** Cada despliegue sirve a una sola empresa: usada por la pantalla de login (sin autenticación) para mostrar su marca. */
   async findBrandingPublico() {
-    const generico = { nombre: 'PG Planada Gym', logoUrl: null, colorPrimario: null };
+    const generico = { nombre: 'GymPro', logoUrl: null, colorPrimario: null };
     const empresa = await this.prisma.empresa.findFirst({
       orderBy: { creadoEn: 'asc' },
       select: { nombre: true, logoUrl: true, colorPrimario: true },

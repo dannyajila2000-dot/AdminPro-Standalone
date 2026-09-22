@@ -18,7 +18,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('PG Planada Gym API')
+    .setTitle('GymPro API')
     .setDescription('API del núcleo de administración reutilizable')
     .setVersion('0.1.0')
     .addBearerAuth()

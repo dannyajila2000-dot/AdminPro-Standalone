@@ -72,7 +72,7 @@ function Sidebar({ identity, abierto, onCerrar }: SidebarProps) {
             />
           ) : (
             <span className="truncate text-lg font-bold tracking-tight text-[var(--color-text)]">
-              {identity?.empresa.nombre ?? 'PG Planada Gym'}
+              {identity?.empresa.nombre ?? 'GymPro'}
             </span>
           )}
         </div>
