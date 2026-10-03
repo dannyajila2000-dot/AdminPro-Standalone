@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { CanAccess, useGetIdentity } from '@refinedev/core'
 import { axiosInstance } from '../../lib/axios'
-import { aplicarColorPrimario, colorMarcaEfectivo, esColorMarcaAnterior } from '../../lib/theme'
+import { aplicarColorPrimario, colorMarcaEfectivo, colorTextoSobre, esColorMarcaAnterior } from '../../lib/theme'
 import type { Identity } from '../../lib/identity'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import { ImageUploadField } from '../../components/ui/ImageUploadField'
@@ -31,7 +31,7 @@ const empresaSchema = z.object({
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   zonaHoraria: z.string().optional(),
   logoUrl: z.string().optional(),
-  colorPrimario: z.string().regex(COLOR_HEX_REGEX, 'Formato hex, ej. #0284C7').optional().or(z.literal('')),
+  colorPrimario: z.string().regex(COLOR_HEX_REGEX, 'Formato hex, ej. #C9A227').optional().or(z.literal('')),
 })
 
 type EmpresaValues = z.infer<typeof empresaSchema>
@@ -63,7 +63,7 @@ function VistaPrevia({
           ) : (
             <div className="h-7 w-7 rounded bg-white/20" />
           )}
-          <span className="truncate text-sm font-semibold text-white">{nombreVisible}</span>
+          <span className="truncate text-sm font-semibold" style={{ color: colorTextoSobre(color) }}>{nombreVisible}</span>
         </div>
       </div>
 
@@ -79,8 +79,8 @@ function VistaPrevia({
           )}
           <span className="text-sm font-semibold text-[var(--color-text)]">{nombreVisible}</span>
           <div
-            className="mt-1 w-full rounded-lg py-1.5 text-center text-xs font-medium text-white"
-            style={{ backgroundColor: color }}
+            className="mt-1 w-full rounded-lg py-1.5 text-center text-xs font-medium"
+            style={{ backgroundColor: color, color: colorTextoSobre(color) }}
           >
             Iniciar sesión
           </div>
@@ -274,7 +274,7 @@ export function EmpresaPage() {
               />
               <input
                 {...register('colorPrimario')}
-                placeholder="#0284C7"
+                placeholder="#C9A227"
                 className="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[var(--color-primario)] focus:outline-none"
               />
             </div>

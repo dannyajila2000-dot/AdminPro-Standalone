@@ -26,7 +26,7 @@ export function Avatar({ nombre, fotoUrl, size = 32 }: Props) {
   return (
     <div
       style={{ width: size, height: size }}
-      className="flex items-center justify-center rounded-full bg-[var(--color-primario)] text-xs font-semibold text-white ring-1 ring-[var(--color-border)]"
+      className="flex items-center justify-center rounded-full bg-[var(--color-primario)] text-xs font-semibold text-[var(--color-primario-texto)] ring-1 ring-[var(--color-border)]"
     >
       {iniciales || '?'}
     </div>

@@ -86,7 +86,7 @@ export function CapturaCamaraModal({ onCapturar, onCerrar }: Props) {
             <button
               type="button"
               onClick={capturar}
-              className="flex items-center gap-2 rounded-lg bg-[var(--color-primario)] px-3 py-1.5 text-sm font-medium text-white hover:brightness-90"
+              className="flex items-center gap-2 rounded-lg bg-[var(--color-primario)] px-3 py-1.5 text-sm font-medium text-[var(--color-primario-texto)] hover:brightness-90"
             >
               <Camera size={16} />
               Capturar

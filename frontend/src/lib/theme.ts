@@ -7,13 +7,37 @@ function aclararHex(hex: string, factor: number): string {
   return `#${mezclar(r)}${mezclar(g)}${mezclar(b)}`
 }
 
-export const COLOR_MARCA_POR_DEFECTO = '#0284c7'
-// Hasta ahora el esquema guardaba este azul pizarra como valor por defecto en cada empresa; se trata
-// como "sin color propio" para que pase a la paleta de gymProApp sin tocar la base de datos.
-const COLOR_MARCA_ANTERIOR = '#0f172a'
+/** Mezcla un color hex hacia negro un `factor` (0 = igual, 1 = negro puro). */
+function oscurecerHex(hex: string, factor: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const mezclar = (c: number) => Math.round(c * (1 - factor)).toString(16).padStart(2, '0')
+  return `#${mezclar(r)}${mezclar(g)}${mezclar(b)}`
+}
+
+/** Luminancia relativa (0 = negro, 1 = blanco) según WCAG. */
+function luminancia(hex: string): number {
+  const canal = (i: number) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * canal(1) + 0.7152 * canal(3) + 0.0722 * canal(5)
+}
+
+/** Texto legible sobre un fondo de ese color: negro si es claro (dorado, amarillo), blanco si es oscuro. */
+export function colorTextoSobre(hex: string): '#111111' | '#ffffff' {
+  return luminancia(hex) > 0.179 ? '#111111' : '#ffffff'
+}
+
+// Paleta de gymProApp: dorado sobre blanco.
+export const COLOR_MARCA_POR_DEFECTO = '#c9a227'
+// Colores que el sistema guardaba (o proponía) por defecto antes: se tratan como "sin color propio"
+// para que pasen a la paleta de gymProApp sin tocar la base de datos.
+const COLORES_MARCA_ANTERIORES = ['#0f172a', '#0284c7']
 
 export function esColorMarcaAnterior(color?: string | null): boolean {
-  return color?.toLowerCase() === COLOR_MARCA_ANTERIOR
+  return !!color && COLORES_MARCA_ANTERIORES.includes(color.toLowerCase())
 }
 
 /** El color de marca que realmente se usa: el de la empresa, o el de gymProApp si no tiene uno propio. */
@@ -24,13 +48,14 @@ export function colorMarcaEfectivo(color?: string | null): string {
 export function aplicarColorPrimario(color?: string | null) {
   const valido = colorMarcaEfectivo(color)
   const raiz = document.documentElement.style
+  // Un color claro (como el dorado) no se lee como texto sobre fondo blanco: se oscurece. Y uno oscuro
+  // no se lee como texto sobre fondo oscuro: se aclara. Ver el token --color-primario-legible en index.css.
+  const esClaro = luminancia(valido) > 0.3
   raiz.setProperty('--color-primario', valido)
-  // El color de marca puede ser cualquier tono que el cliente elija (a menudo oscuro,
-  // pensado para texto blanco encima). Usado como texto sobre un fondo oscuro se
-  // vuelve ilegible, así que en modo oscuro se usa una versión aclarada — ver el
-  // token --color-primario-legible en index.css.
-  raiz.setProperty('--color-primario-legible-light', valido)
-  raiz.setProperty('--color-primario-legible-dark', aclararHex(valido, 0.6))
+  raiz.setProperty('--color-primario-suave', `${valido}1f`)
+  raiz.setProperty('--color-primario-texto', colorTextoSobre(valido))
+  raiz.setProperty('--color-primario-legible-light', esClaro ? oscurecerHex(valido, 0.3) : valido)
+  raiz.setProperty('--color-primario-legible-dark', esClaro ? valido : aclararHex(valido, 0.6))
 }
 
 const TEMA_KEY = 'backoffice_tema'

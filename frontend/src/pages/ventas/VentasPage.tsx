@@ -464,7 +464,7 @@ export function VentasPage() {
               <ShoppingCart size={16} />
               Carrito
               {carrito.length > 0 && (
-                <span className="rounded-full bg-[var(--color-primario)] px-1.5 py-0.5 text-xs font-medium text-white">
+                <span className="rounded-full bg-[var(--color-primario)] px-1.5 py-0.5 text-xs font-medium text-[var(--color-primario-texto)]">
                   {carrito.reduce((suma, item) => suma + item.cantidad, 0)}
                 </span>
               )}

@@ -88,7 +88,7 @@ function HorarioComposer({ bloques, onCambiarBloques }: HorarioComposerProps) {
                   onClick={() => alternarDia(bloque, dia)}
                   className={`rounded-lg border px-2 py-1 text-xs font-medium ${
                     bloque.dias.has(dia)
-                      ? 'border-[var(--color-primario)] bg-[var(--color-primario)] text-white'
+                      ? 'border-[var(--color-primario)] bg-[var(--color-primario)] text-[var(--color-primario-texto)]'
                       : 'border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)]'
                   }`}
                 >

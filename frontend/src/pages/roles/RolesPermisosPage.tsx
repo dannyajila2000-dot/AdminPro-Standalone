@@ -288,7 +288,7 @@ export function RolesPermisosPage() {
                 onClick={() => seleccionarRol(rol)}
                 className={`flex w-full items-center justify-between gap-2 rounded px-3 py-2 text-left text-sm ${
                   rolSeleccionadoId === rol.id
-                    ? 'bg-[var(--color-primario)] text-white'
+                    ? 'bg-[var(--color-primario)] text-[var(--color-primario-texto)]'
                     : 'text-[var(--color-text)] hover:bg-[var(--color-bg-subtle)]'
                 }`}
               >
@@ -296,7 +296,7 @@ export function RolesPermisosPage() {
                 <span
                   className={`flex shrink-0 items-center gap-1 text-xs ${
                     rolSeleccionadoId === rol.id
-                      ? 'text-white/80'
+                      ? 'text-[var(--color-primario-texto)]/80'
                       : 'text-[var(--color-text-faint)]'
                   }`}
                 >
@@ -313,7 +313,7 @@ export function RolesPermisosPage() {
                 title={`Clonar «${rol.nombre}»`}
                 className={`absolute right-8 top-1/2 -translate-y-1/2 rounded p-1 opacity-0 group-hover:opacity-100 ${
                   rolSeleccionadoId === rol.id
-                    ? 'text-white/80 hover:bg-white/10'
+                    ? 'text-[var(--color-primario-texto)]/80 hover:bg-black/10'
                     : 'text-[var(--color-text-faint)] hover:bg-[var(--color-bg-subtle)]'
                 }`}
               >
@@ -368,7 +368,7 @@ export function RolesPermisosPage() {
                       type="button"
                       onClick={guardarNombre}
                       disabled={guardandoNombre || !nombreEdit.trim()}
-                      className="flex items-center gap-1.5 rounded-lg bg-[var(--color-primario)] px-3 py-1.5 text-sm text-white disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg bg-[var(--color-primario)] px-3 py-1.5 text-sm text-[var(--color-primario-texto)] disabled:opacity-50"
                     >
                       {guardandoNombre && <Spinner size={12} />}
                       Guardar

@@ -38,7 +38,7 @@ export function TiposCitaPage() {
   const [duracionMinutos, setDuracionMinutos] = useState(30)
   const [bufferMinutos, setBufferMinutos] = useState(0)
   const [precio, setPrecio] = useState('')
-  const [color, setColor] = useState('#0ea5e9')
+  const [color, setColor] = useState('#c9a227')
   const [creando, setCreando] = useState(false)
   const [mostrarArchivados, setMostrarArchivados] = useState(false)
   const [clonandoDesde, setClonandoDesde] = useState<string | null>(null)
@@ -49,7 +49,7 @@ export function TiposCitaPage() {
   const [duracionEdit, setDuracionEdit] = useState(30)
   const [bufferEdit, setBufferEdit] = useState(0)
   const [precioEdit, setPrecioEdit] = useState('')
-  const [colorEdit, setColorEdit] = useState('#0ea5e9')
+  const [colorEdit, setColorEdit] = useState('#c9a227')
   const [guardandoEdit, setGuardandoEdit] = useState(false)
   const [cambiandoActivoId, setCambiandoActivoId] = useState<string | null>(null)
 
@@ -78,7 +78,7 @@ export function TiposCitaPage() {
     setDuracionMinutos(30)
     setBufferMinutos(0)
     setPrecio('')
-    setColor('#0ea5e9')
+    setColor('#c9a227')
     setClonandoDesde(null)
   }
 

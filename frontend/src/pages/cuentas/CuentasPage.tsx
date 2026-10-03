@@ -338,7 +338,7 @@ export function CuentasPage() {
             onClick={() => elegirPeriodo(p.value)}
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
               periodo === p.value
-                ? 'bg-[var(--color-primario)] text-white'
+                ? 'bg-[var(--color-primario)] text-[var(--color-primario-texto)]'
                 : 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)]'
             }`}
           >
@@ -350,7 +350,7 @@ export function CuentasPage() {
           onClick={() => setPeriodo('personalizado')}
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
             periodo === 'personalizado'
-              ? 'bg-[var(--color-primario)] text-white'
+              ? 'bg-[var(--color-primario)] text-[var(--color-primario-texto)]'
               : 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)]'
           }`}
         >
