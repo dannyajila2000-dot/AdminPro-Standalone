@@ -7,8 +7,22 @@ function aclararHex(hex: string, factor: number): string {
   return `#${mezclar(r)}${mezclar(g)}${mezclar(b)}`
 }
 
+export const COLOR_MARCA_POR_DEFECTO = '#0284c7'
+// Hasta ahora el esquema guardaba este azul pizarra como valor por defecto en cada empresa; se trata
+// como "sin color propio" para que pase a la paleta de gymProApp sin tocar la base de datos.
+const COLOR_MARCA_ANTERIOR = '#0f172a'
+
+export function esColorMarcaAnterior(color?: string | null): boolean {
+  return color?.toLowerCase() === COLOR_MARCA_ANTERIOR
+}
+
+/** El color de marca que realmente se usa: el de la empresa, o el de gymProApp si no tiene uno propio. */
+export function colorMarcaEfectivo(color?: string | null): string {
+  return color && /^#[0-9a-fA-F]{6}$/.test(color) && !esColorMarcaAnterior(color) ? color : COLOR_MARCA_POR_DEFECTO
+}
+
 export function aplicarColorPrimario(color?: string | null) {
-  const valido = color && /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#0f172a'
+  const valido = colorMarcaEfectivo(color)
   const raiz = document.documentElement.style
   raiz.setProperty('--color-primario', valido)
   // El color de marca puede ser cualquier tono que el cliente elija (a menudo oscuro,

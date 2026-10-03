@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { CanAccess, useGetIdentity } from '@refinedev/core'
 import { axiosInstance } from '../../lib/axios'
-import { aplicarColorPrimario } from '../../lib/theme'
+import { aplicarColorPrimario, colorMarcaEfectivo, esColorMarcaAnterior } from '../../lib/theme'
 import type { Identity } from '../../lib/identity'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import { ImageUploadField } from '../../components/ui/ImageUploadField'
@@ -31,7 +31,7 @@ const empresaSchema = z.object({
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   zonaHoraria: z.string().optional(),
   logoUrl: z.string().optional(),
-  colorPrimario: z.string().regex(COLOR_HEX_REGEX, 'Formato hex, ej. #0F172A').optional().or(z.literal('')),
+  colorPrimario: z.string().regex(COLOR_HEX_REGEX, 'Formato hex, ej. #0284C7').optional().or(z.literal('')),
 })
 
 type EmpresaValues = z.infer<typeof empresaSchema>
@@ -45,7 +45,7 @@ function VistaPrevia({
   logoUrl?: string
   colorPrimario?: string
 }) {
-  const color = COLOR_HEX_REGEX.test(colorPrimario ?? '') ? colorPrimario : '#0f172a'
+  const color = colorMarcaEfectivo(colorPrimario)
   const nombreVisible = nombre.trim() || 'Tu empresa'
 
   return (
@@ -120,7 +120,7 @@ export function EmpresaPage() {
           email: data.email ?? '',
           zonaHoraria: data.zonaHoraria ?? 'America/Guayaquil',
           logoUrl: data.logoUrl ?? '',
-          colorPrimario: data.colorPrimario ?? '',
+          colorPrimario: esColorMarcaAnterior(data.colorPrimario) ? '' : (data.colorPrimario ?? ''),
         })
       })
       .finally(() => setCargando(false))
@@ -266,7 +266,7 @@ export function EmpresaPage() {
             <div className="flex items-center gap-2">
               <input
                 type="color"
-                value={COLOR_HEX_REGEX.test(colorActual ?? '') ? colorActual : '#0f172a'}
+                value={colorMarcaEfectivo(colorActual)}
                 onChange={(e) =>
                   setValue('colorPrimario', e.target.value, { shouldDirty: true })
                 }
@@ -274,7 +274,7 @@ export function EmpresaPage() {
               />
               <input
                 {...register('colorPrimario')}
-                placeholder="#0F172A"
+                placeholder="#0284C7"
                 className="w-full rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm focus:border-[var(--color-primario)] focus:outline-none"
               />
             </div>

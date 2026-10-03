@@ -3,66 +3,68 @@
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  --color-primario: #0f172a;
-  --color-primario-suave: #0f172a1a;
-  --color-primario-legible-light: #0f172a;
-  --color-primario-legible-dark: #94a3b8;
+  /* Paleta de gymProApp (mobile/src/constants/theme.ts): azul cielo sobre blanco, texto azul pizarra. */
+  --color-primario: #0284c7;
+  --color-primario-suave: #0284c71a;
+  --color-primario-legible-light: #0369a1;
+  --color-primario-legible-dark: #38bdf8;
   --color-primario-legible: var(--color-primario-legible-light);
 
-  --color-bg: #f4f5f7;
+  --color-bg: #f4f7fb;
   --color-bg-card: #ffffff;
   --color-bg-subtle: #f8fafc;
-  --color-bg-muted: #e2e8f0;
-  --color-bg-hover: #f1f2f5;
-  --color-text: #17181c;
-  --color-text-muted: #62636c;
-  --color-text-faint: #97989f;
-  --color-border: #e6e7eb;
+  --color-bg-muted: #e4eefb;
+  --color-bg-hover: #eaf6ff;
+  --color-text: #0f172a;
+  --color-text-muted: #5b6472;
+  --color-text-faint: #8a94a3;
+  --color-border: #e2e8f0;
 
-  --color-serie-ingreso: #2a78d6;
+  --color-serie-ingreso: #0284c7;
   --color-serie-egreso: #e34948;
-  --color-serie-grasa: #eda100;
+  --color-serie-grasa: #d9a62e;
 
-  --color-cat-1: #2a78d6;
+  --color-cat-1: #0284c7;
   --color-cat-2: #eb6834;
-  --color-cat-3: #1baf7a;
-  --color-cat-4: #eda100;
+  --color-cat-3: #1fa971;
+  --color-cat-4: #d9a62e;
   --color-cat-5: #e87ba4;
-  --color-cat-6: #008300;
+  --color-cat-6: #0d9488;
   --color-cat-7: #4a3aa7;
-  --color-cat-8: #e34948;
+  --color-cat-8: #b3402e;
 
-  --sombra-sm: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 1px rgba(16, 24, 40, 0.03);
-  --sombra-md: 0 4px 10px rgba(16, 24, 40, 0.06), 0 2px 4px rgba(16, 24, 40, 0.04);
-  --sombra-lg: 0 12px 28px rgba(16, 24, 40, 0.12), 0 4px 10px rgba(16, 24, 40, 0.06);
+  /* Misma receta de sombra suave que CardShadow en la app móvil. */
+  --sombra-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --sombra-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --sombra-lg: 0 12px 28px rgba(15, 23, 42, 0.14), 0 4px 10px rgba(15, 23, 42, 0.06);
 
   color-scheme: light;
 }
 
 :root.dark {
-  --color-primario-suave: #ffffff14;
+  --color-primario-suave: #38bdf81f;
   --color-primario-legible: var(--color-primario-legible-dark);
 
-  --color-bg: #0b0d12;
-  --color-bg-card: #14161d;
-  --color-bg-subtle: #191b23;
-  --color-bg-muted: #2a2d38;
-  --color-bg-hover: #1c1f28;
-  --color-text: #f2f3f5;
-  --color-text-muted: #9a9ba5;
-  --color-text-faint: #6b6c76;
-  --color-border: #262933;
+  --color-bg: #0b1220;
+  --color-bg-card: #111b2e;
+  --color-bg-subtle: #16233a;
+  --color-bg-muted: #223250;
+  --color-bg-hover: #1a2a44;
+  --color-text: #e6eef8;
+  --color-text-muted: #9aa9bd;
+  --color-text-faint: #6b7a90;
+  --color-border: #223250;
 
-  --color-serie-ingreso: #3987e5;
+  --color-serie-ingreso: #38bdf8;
   --color-serie-egreso: #e66767;
-  --color-serie-grasa: #c98500;
+  --color-serie-grasa: #e2b04f;
 
-  --color-cat-1: #3987e5;
+  --color-cat-1: #38bdf8;
   --color-cat-2: #d95926;
-  --color-cat-3: #199e70;
-  --color-cat-4: #c98500;
+  --color-cat-3: #34c98b;
+  --color-cat-4: #e2b04f;
   --color-cat-5: #d55181;
-  --color-cat-6: #008300;
+  --color-cat-6: #2dd4bf;
   --color-cat-7: #9085e9;
   --color-cat-8: #e66767;
 
