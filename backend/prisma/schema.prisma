@@ -51,12 +51,26 @@ model Empresa {
   planesMembresia      PlanMembresia[]
   membresias           Membresia[]
   medicionesCorporales MedicionCorporal[]
+  integracionApp       IntegracionApp?
+}
+
+// ---------- INTEGRACIÓN CON LA APP DEL SOCIO (gymProApp) ----------
+// Una clave por empresa: la app la usa para consultar sucursales y el estado de las membresías.
+// Solo se guarda su hash; la clave en claro se muestra una vez al crearla.
+model IntegracionApp {
+  id             String   @id @default(uuid())
+  empresaId      String   @unique
+  empresa        Empresa  @relation(fields: [empresaId], references: [id])
+  apiKeyHash     String   @unique
+  codigoGimnasio String // el código que el socio escribe en la app al activar su cuenta
+  activa         Boolean  @default(true)
+  creadoEn       DateTime @default(now())
 }
 
 model Sucursal {
-  id                    String  @id @default(uuid())
+  id                    String   @id @default(uuid())
   empresaId             String
-  empresa               Empresa @relation(fields: [empresaId], references: [id])
+  empresa               Empresa  @relation(fields: [empresaId], references: [id])
   nombre                String
   direccion             String?
   latitud               Float?
@@ -67,7 +81,7 @@ model Sucursal {
   encargado             Usuario? @relation("SucursalEncargado", fields: [encargadoId], references: [id], onDelete: SetNull)
   horarioAtencion       String?
   imagenUrl             String?
-  activa                Boolean @default(true)
+  activa                Boolean  @default(true)
 
   usuarios          Usuario[]
   recursos          Recurso[]
@@ -100,19 +114,19 @@ model Usuario {
   roles                  UsuarioRol[]
   refreshTokens          RefreshToken[]
   passwordResetTokens    PasswordResetToken[]
-  activosAsignados       AsignacionActivo[]   @relation("ActivoTitular")
-  asignacionesRealizadas AsignacionActivo[]   @relation("ActivoAsignadoPor")
+  activosAsignados       AsignacionActivo[]    @relation("ActivoTitular")
+  asignacionesRealizadas AsignacionActivo[]    @relation("ActivoAsignadoPor")
   movimientosStock       MovimientoStock[]
   marcaciones            Marcacion[]
   movimientosCuenta      MovimientoCuenta[]
   ordenes                Orden[]
   notificaciones         Notificacion[]
   ordenesCompra          OrdenCompra[]
-  pagosNomina            PagoNomina[]         @relation("NominaEmpleado")
-  pagosNominaRegistrados PagoNomina[]         @relation("NominaRegistradoPor")
+  pagosNomina            PagoNomina[]          @relation("NominaEmpleado")
+  pagosNominaRegistrados PagoNomina[]          @relation("NominaRegistradoPor")
   recursosVinculados     Recurso[]
   mantenimientosActivo   MantenimientoActivo[]
-  sucursalesEncargado    Sucursal[]           @relation("SucursalEncargado")
+  sucursalesEncargado    Sucursal[]            @relation("SucursalEncargado")
   medicionesCorporales   MedicionCorporal[]
 }
 
@@ -208,11 +222,19 @@ model Cliente {
   atributosExtra Json?
   creadoEn       DateTime @default(now())
 
-  ordenes             Orden[]
-  citas               Cita[]
-  activosAsignados    AsignacionActivo[]
-  movimientosCuenta   MovimientoCuenta[]
-  membresias          Membresia[]
+  // Acceso a la app del socio: el administrador lo invita y el socio activa su cuenta con un código
+  // de 6 dígitos enviado a su correo (solo se guarda su hash; vence y se anula tras 5 intentos fallidos).
+  appCodigoHash       String?
+  appCodigoExpiraEn   DateTime?
+  appInvitadoEn       DateTime?
+  appActivadoEn       DateTime?
+  appIntentosFallidos Int       @default(0)
+
+  ordenes              Orden[]
+  citas                Cita[]
+  activosAsignados     AsignacionActivo[]
+  movimientosCuenta    MovimientoCuenta[]
+  membresias           Membresia[]
   medicionesCorporales MedicionCorporal[]
 }
 
@@ -245,13 +267,13 @@ model MedicionCorporal {
 // ---------- MEMBRESÍAS (suscripciones de socios, ej. gimnasios/academias) ----------
 
 model PlanMembresia {
-  id           String   @id @default(uuid())
+  id           String  @id @default(uuid())
   empresaId    String
-  empresa      Empresa  @relation(fields: [empresaId], references: [id])
+  empresa      Empresa @relation(fields: [empresaId], references: [id])
   nombre       String // "Mensual", "Trimestral", "Anual"
   duracionDias Int
-  precio       Decimal  @db.Decimal(10, 2)
-  activo       Boolean  @default(true)
+  precio       Decimal @db.Decimal(10, 2)
+  activo       Boolean @default(true)
 
   membresias Membresia[]
 
@@ -354,10 +376,10 @@ model Recurso {
   activo     Boolean   @default(true)
   creadoEn   DateTime  @default(now())
 
-  horarios HorarioAtencion[]
-  bloqueos BloqueoDisponibilidad[]
-  citas    Cita[]
-  tiposCita TipoCita[] @relation("RecursoTipoCita")
+  horarios  HorarioAtencion[]
+  bloqueos  BloqueoDisponibilidad[]
+  citas     Cita[]
+  tiposCita TipoCita[]              @relation("RecursoTipoCita")
 }
 
 model HorarioAtencion {
@@ -456,8 +478,8 @@ model Activo {
   notas             String?
   creadoEn          DateTime        @default(now())
 
-  asignaciones  AsignacionActivo[]
-  mantenimientos MantenimientoActivo[]
+  asignaciones      AsignacionActivo[]
+  mantenimientos    MantenimientoActivo[]
   movimientosCuenta MovimientoCuenta[]
 
   @@unique([empresaId, codigoInterno])
@@ -546,39 +568,39 @@ model CategoriaMovimiento {
 }
 
 model MovimientoCuenta {
-  id                String              @id @default(uuid())
+  id                String               @id @default(uuid())
   empresaId         String
-  empresa           Empresa             @relation(fields: [empresaId], references: [id])
+  empresa           Empresa              @relation(fields: [empresaId], references: [id])
   tipo              String // "ingreso" | "egreso"
   categoriaId       String
-  categoria         CategoriaMovimiento @relation(fields: [categoriaId], references: [id])
-  monto             Decimal             @db.Decimal(10, 2)
+  categoria         CategoriaMovimiento  @relation(fields: [categoriaId], references: [id])
+  monto             Decimal              @db.Decimal(10, 2)
   fecha             DateTime
   descripcion       String?
   metodoPago        String?
   numeroComprobante String?
   comprobanteUrl    String?
   clienteId         String?
-  cliente           Cliente?            @relation(fields: [clienteId], references: [id])
+  cliente           Cliente?             @relation(fields: [clienteId], references: [id])
   usuarioId         String
-  usuario           Usuario             @relation(fields: [usuarioId], references: [id])
+  usuario           Usuario              @relation(fields: [usuarioId], references: [id])
   ordenId           String?
-  orden             Orden?              @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  orden             Orden?               @relation(fields: [ordenId], references: [id], onDelete: Cascade)
   ordenCompraId     String?
-  ordenCompra       OrdenCompra?        @relation(fields: [ordenCompraId], references: [id], onDelete: Cascade)
+  ordenCompra       OrdenCompra?         @relation(fields: [ordenCompraId], references: [id], onDelete: Cascade)
   pagoNominaId      String?
-  pagoNomina        PagoNomina?         @relation(fields: [pagoNominaId], references: [id], onDelete: Cascade)
+  pagoNomina        PagoNomina?          @relation(fields: [pagoNominaId], references: [id], onDelete: Cascade)
   citaId            String?
-  cita              Cita?               @relation(fields: [citaId], references: [id], onDelete: Cascade)
+  cita              Cita?                @relation(fields: [citaId], references: [id], onDelete: Cascade)
   mantenimientoId   String?
   mantenimiento     MantenimientoActivo? @relation(fields: [mantenimientoId], references: [id], onDelete: Cascade)
   activoId          String?
-  activoCompra      Activo?             @relation(fields: [activoId], references: [id], onDelete: Cascade)
+  activoCompra      Activo?              @relation(fields: [activoId], references: [id], onDelete: Cascade)
   sucursalId        String?
-  sucursal          Sucursal?           @relation(fields: [sucursalId], references: [id])
+  sucursal          Sucursal?            @relation(fields: [sucursalId], references: [id])
   membresiaId       String?
-  membresia         Membresia?          @relation(fields: [membresiaId], references: [id], onDelete: Cascade)
-  creadoEn          DateTime            @default(now())
+  membresia         Membresia?           @relation(fields: [membresiaId], references: [id], onDelete: Cascade)
+  creadoEn          DateTime             @default(now())
 }
 
 // ---------- NOTIFICACIONES (centro de notificaciones dentro de la app) ----------
@@ -640,14 +662,14 @@ model OrdenCompra {
 }
 
 model OrdenCompraItem {
-  id                String           @id @default(uuid())
-  ordenCompraId     String
-  ordenCompra       OrdenCompra      @relation(fields: [ordenCompraId], references: [id], onDelete: Cascade)
-  productoId        String
-  producto          ProductoServicio @relation(fields: [productoId], references: [id])
-  cantidad          Int
-  cantidadRecibida  Int              @default(0)
-  precioUnit        Decimal          @db.Decimal(10, 2)
+  id               String           @id @default(uuid())
+  ordenCompraId    String
+  ordenCompra      OrdenCompra      @relation(fields: [ordenCompraId], references: [id], onDelete: Cascade)
+  productoId       String
+  producto         ProductoServicio @relation(fields: [productoId], references: [id])
+  cantidad         Int
+  cantidadRecibida Int              @default(0)
+  precioUnit       Decimal          @db.Decimal(10, 2)
 }
 
 // ---------- NÓMINA (registro simple de pagos a empleados) ----------

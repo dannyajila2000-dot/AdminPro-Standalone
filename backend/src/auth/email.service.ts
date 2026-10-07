@@ -42,6 +42,33 @@ export class EmailService {
     );
   }
 
+  /** Devuelve true si el correo salió (false si no hay correo configurado o falló el envío). */
+  async enviarInvitacionApp(
+    email: string,
+    nombre: string,
+    codigo: string,
+    nombreEmpresa: string,
+    codigoGimnasio: string,
+    vigenciaDias: number,
+  ): Promise<boolean> {
+    return this.enviar(
+      email,
+      `${nombreEmpresa} te invitó a su app`,
+      `
+        <p>Hola ${nombre},</p>
+        <p><b>${nombreEmpresa}</b> te invitó a usar su app para entrenar. Para activar tu cuenta:</p>
+        <ol>
+          <li>Descarga la app e ingresa a <b>Activar mi cuenta</b>.</li>
+          <li>Escribe el código del gimnasio: <b>${codigoGimnasio}</b></li>
+          <li>Escribe este correo y tu código de activación: <b style="font-size:20px;letter-spacing:3px">${codigo}</b></li>
+          <li>Elige tu contraseña y listo.</li>
+        </ol>
+        <p>El código vence en ${vigenciaDias} días.</p>
+      `,
+      `invitación a la app para ${email}`,
+    );
+  }
+
   async enviarAvisoCambioPassword(email: string, nombre: string) {
     await this.enviar(
       email,
@@ -104,12 +131,12 @@ export class EmailService {
     subject: string,
     html: string,
     referenciaRespaldo: string,
-  ) {
+  ): Promise<boolean> {
     if (!this.transporter) {
       this.logger.warn(
         `GMAIL_USER/GMAIL_APP_PASSWORD no configurados — ${referenciaRespaldo}`,
       );
-      return;
+      return false;
     }
 
     try {
@@ -119,11 +146,13 @@ export class EmailService {
         subject,
         html,
       });
+      return true;
     } catch (error) {
       // No relanzamos: el flujo que dispara el correo no debe fallar por esto.
       this.logger.error(
         `No se pudo enviar el correo a ${to}: ${(error as Error).message} (${referenciaRespaldo})`,
       );
+      return false;
     }
   }
 }

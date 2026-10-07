@@ -101,6 +101,31 @@ export class MembresiasService {
     );
   }
 
+  /**
+   * Estado de la membresía de un socio sin comprobar permisos de visor: lo consume la integración con la
+   * app del socio (que se autentica con su propia clave), no el panel.
+   */
+  async resumenDeSocio(empresaId: string, clienteId: string) {
+    const membresia = await this.prisma.membresia.findFirst({
+      where: { clienteId, empresaId },
+      orderBy: { fechaVencimiento: 'desc' },
+      include: { plan: true },
+    });
+    if (!membresia) {
+      return { estado: 'sin_membresia' as EstadoMembresia, plan: null, fechaVencimiento: null, diasRestantes: null };
+    }
+
+    const diasRestantes = diasEntre(new Date(), membresia.fechaVencimiento);
+    const estado: EstadoMembresia =
+      diasRestantes < 0 ? 'vencido' : diasRestantes <= UMBRAL_POR_VENCER_DIAS ? 'por_vencer' : 'activo';
+    return {
+      estado,
+      plan: membresia.plan.nombre,
+      fechaVencimiento: membresia.fechaVencimiento.toISOString(),
+      diasRestantes,
+    };
+  }
+
   async estadoDeCliente(
     empresaId: string,
     clienteId: string,

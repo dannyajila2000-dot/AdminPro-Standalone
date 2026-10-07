@@ -6,6 +6,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
+import { EmailService } from '../auth/email.service';
+import {
+  generarCodigo,
+  hashDeCodigo,
+  VIGENCIA_CODIGO_DIAS,
+} from '../integracion/integracion.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MembresiasService } from '../membresias/membresias.service';
 import { filtroSucursalCliente, puedeVerTodasSucursales } from '../common/utils/sucursal-scope';
@@ -49,7 +55,89 @@ export class ClientesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly membresiasService: MembresiasService,
+    private readonly emailService: EmailService,
   ) {}
+
+  /** Si el socio ya tiene la app, está invitado o aún no: lo que muestra la ficha. */
+  async estadoApp(empresaId: string, id: string, permisosVisor: string[], sucursalIdVisor: string | null) {
+    const cliente = await this.prisma.cliente.findFirst({
+      where: { id, empresaId, ...filtroSucursalCliente(permisosVisor, sucursalIdVisor) },
+      select: { email: true, appInvitadoEn: true, appActivadoEn: true, appCodigoExpiraEn: true },
+    });
+    if (!cliente) throw new NotFoundException('Cliente no encontrado');
+
+    const integracion = await this.prisma.integracionApp.findUnique({ where: { empresaId }, select: { activa: true } });
+    const estado = cliente.appActivadoEn
+      ? 'activada'
+      : cliente.appCodigoExpiraEn && cliente.appCodigoExpiraEn > new Date()
+        ? 'invitado'
+        : cliente.appInvitadoEn
+          ? 'invitacion_vencida'
+          : 'sin_invitar';
+    return {
+      estado,
+      integracionConfigurada: !!integracion?.activa,
+      tieneCorreo: !!cliente.email,
+      invitadoEn: cliente.appInvitadoEn,
+      activadoEn: cliente.appActivadoEn,
+      codigoVenceEn: cliente.appCodigoExpiraEn,
+    };
+  }
+
+  /**
+   * Invita al socio a la app: genera un código de activación de 6 dígitos, lo guarda cifrado (hash) y lo envía
+   * a su correo. También se devuelve al administrador, por si el correo no sale o prefiere mandarlo por
+   * WhatsApp. Cada invitación anula la anterior.
+   */
+  async invitarApp(empresaId: string, id: string, permisosVisor: string[], sucursalIdVisor: string | null) {
+    const cliente = await this.prisma.cliente.findFirst({
+      where: { id, empresaId, ...filtroSucursalCliente(permisosVisor, sucursalIdVisor) },
+      include: { empresa: { select: { nombre: true } } },
+    });
+    if (!cliente) throw new NotFoundException('Cliente no encontrado');
+    if (!cliente.activo) throw new BadRequestException('El socio está inactivo');
+    if (!cliente.email) throw new BadRequestException('El socio necesita un correo para invitarlo a la app');
+    if (cliente.appActivadoEn) throw new ConflictException('Este socio ya activó su cuenta en la app');
+
+    const integracion = await this.prisma.integracionApp.findUnique({ where: { empresaId } });
+    if (!integracion?.activa) {
+      throw new BadRequestException('La conexión con la app todavía no está configurada para esta empresa');
+    }
+
+    // En la app, el correo identifica al socio: dos socios con el mismo correo no pueden tener cuenta a la vez.
+    const otro = await this.prisma.cliente.findFirst({
+      where: {
+        empresaId,
+        id: { not: id },
+        email: { equals: cliente.email, mode: 'insensitive' },
+        OR: [{ appActivadoEn: { not: null } }, { appCodigoHash: { not: null } }],
+      },
+      select: { nombre: true },
+    });
+    if (otro) throw new ConflictException(`El correo ya está en uso por otro socio (${otro.nombre})`);
+
+    const codigo = generarCodigo();
+    const expira = new Date(Date.now() + VIGENCIA_CODIGO_DIAS * 86_400_000);
+    await this.prisma.cliente.update({
+      where: { id },
+      data: {
+        appCodigoHash: hashDeCodigo(id, codigo),
+        appCodigoExpiraEn: expira,
+        appInvitadoEn: new Date(),
+        appIntentosFallidos: 0,
+      },
+    });
+
+    const enviado = await this.emailService.enviarInvitacionApp(
+      cliente.email,
+      cliente.nombres,
+      codigo,
+      cliente.empresa.nombre,
+      integracion.codigoGimnasio,
+      VIGENCIA_CODIGO_DIAS,
+    );
+    return { enviado, codigo, codigoGimnasio: integracion.codigoGimnasio, expiraEn: expira };
+  }
 
   async findAll(empresaId: string, permisosVisor: string[], sucursalIdVisor: string | null) {
     const clientes = await this.prisma.cliente.findMany({

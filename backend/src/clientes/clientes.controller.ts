@@ -74,6 +74,18 @@ export class ClientesController {
     );
   }
 
+  @CheckPermissions('clientes.leer')
+  @Get(':id/app')
+  estadoApp(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+    return this.clientesService.estadoApp(user.empresaId, id, user.permisos, user.sucursalId);
+  }
+
+  @CheckPermissions('clientes.actualizar')
+  @Post(':id/invitar-app')
+  invitarApp(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+    return this.clientesService.invitarApp(user.empresaId, id, user.permisos, user.sucursalId);
+  }
+
   @CheckPermissions('clientes.eliminar')
   @Delete(':id')
   remove(@CurrentUser() user: RequestUser, @Param('id') id: string) {
