@@ -18,6 +18,7 @@ import { Spinner } from '../../components/ui/Spinner'
 import { Avatar } from '../../components/ui/Avatar'
 import { Tabs } from '../../components/ui/Tabs'
 import { EstadoMembresiaBadge, type EstadoMembresia } from '../../components/ui/EstadoMembresiaBadge'
+import { TarjetaAppSocio } from '../../components/ui/TarjetaAppSocio'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
 import { MapaSeleccionUbicacion } from '../../components/ui/MapaSeleccionUbicacion'
 import { MapaMarcaciones } from '../../components/ui/MapaMarcaciones'
@@ -324,7 +325,7 @@ export function ClientePerfilPage() {
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:max-w-xs">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:max-w-2xl sm:grid-cols-2">
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4 shadow-[var(--sombra-sm)]">
           <p className="text-xs text-[var(--color-text-muted)]">Membresía</p>
           {estadoMembresia ? (
@@ -342,6 +343,13 @@ export function ClientePerfilPage() {
             <p className="text-sm text-[var(--color-text-faint)]">—</p>
           )}
         </div>
+
+        <TarjetaAppSocio
+          clienteId={cliente.id}
+          nombre={cliente.nombre}
+          email={cliente.email}
+          telefono={cliente.telefono}
+        />
       </div>
 
       <div className="mt-4">
