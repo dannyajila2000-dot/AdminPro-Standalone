@@ -112,7 +112,7 @@ export class MembresiasService {
       include: { plan: true },
     });
     if (!membresia) {
-      return { estado: 'sin_membresia' as EstadoMembresia, plan: null, fechaVencimiento: null, diasRestantes: null };
+      return { estado: 'sin_membresia' as EstadoMembresia, plan: null, fechaVencimiento: null, diasRestantes: null, duracionDias: null };
     }
 
     const diasRestantes = diasEntre(new Date(), membresia.fechaVencimiento);
@@ -123,6 +123,7 @@ export class MembresiasService {
       plan: membresia.plan.nombre,
       fechaVencimiento: membresia.fechaVencimiento.toISOString(),
       diasRestantes,
+      duracionDias: membresia.plan.duracionDias,
     };
   }
 
