@@ -130,7 +130,7 @@ export function MembresiasPage() {
   }, [])
 
   const estadosOrdenados = useMemo(() => {
-    const enSucursal = sucursalActivaId
+    const enSucursal = puedeVerTodasSucursales && sucursalActivaId
       ? estados.filter((e) => e.cliente.sucursal?.id === sucursalActivaId)
       : estados
     return [...enSucursal].sort((a, b) => {
@@ -138,7 +138,7 @@ export function MembresiasPage() {
       if (b.diasRestantes == null) return -1
       return a.diasRestantes - b.diasRestantes
     })
-  }, [estados, sucursalActivaId])
+  }, [estados, sucursalActivaId, puedeVerTodasSucursales])
 
   const {
     query,

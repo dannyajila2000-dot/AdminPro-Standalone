@@ -50,9 +50,9 @@ export function ClientesListPage() {
   }, [])
 
   const clientesEnSucursal = useMemo(() => {
-    if (!sucursalActivaId) return clientes
+    if (!puedeVerTodasSucursales || !sucursalActivaId) return clientes
     return clientes.filter((c) => c.sucursal?.id === sucursalActivaId)
-  }, [clientes, sucursalActivaId])
+  }, [clientes, sucursalActivaId, puedeVerTodasSucursales])
 
   const {
     query,
