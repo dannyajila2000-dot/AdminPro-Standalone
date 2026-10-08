@@ -260,6 +260,8 @@ model MedicionCorporal {
   usuarioId        String
   usuario          Usuario  @relation(fields: [usuarioId], references: [id])
   creadoEn         DateTime @default(now())
+  // Id del registro en la app del socio cuando la medición viene de allá (evita duplicarla si la app reintenta).
+  origenApp        String?  @unique
 
   @@index([clienteId, fecha])
 }

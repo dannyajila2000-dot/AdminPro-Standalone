@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiHeader, ApiTags } from '@nestjs/swagger';
-import { IsEmail, IsString, Length, Matches } from 'class-validator';
+import { IsDateString, IsEmail, IsNumber, IsString, Length, Matches, Max, Min } from 'class-validator';
 import { ApiKeyGuard, type ContextoIntegracion } from './api-key.guard';
 import { IntegracionService } from './integracion.service';
 
@@ -17,6 +17,25 @@ class ActivarDto {
 class ConfirmarDto {
   @IsString()
   clienteId!: string;
+}
+
+class MedicionDto {
+  @IsString()
+  @Length(1, 64)
+  origenId!: string;
+
+  @IsDateString()
+  fecha!: string;
+
+  @IsNumber()
+  @Min(20)
+  @Max(400)
+  peso!: number;
+
+  @IsNumber()
+  @Min(50)
+  @Max(260)
+  talla!: number;
 }
 
 /**
@@ -47,6 +66,17 @@ export class IntegracionController {
   @HttpCode(200)
   confirmar(@Req() peticion: { integracion: ContextoIntegracion }, @Body() dto: ConfirmarDto) {
     return this.integracion.confirmarActivacion(peticion.integracion.empresaId, dto.clienteId);
+  }
+
+  /** Peso y estatura que el socio registró en la app: quedan en su ficha de mediciones. */
+  @Post('socios/:clienteId/mediciones')
+  @HttpCode(200)
+  medicion(
+    @Req() peticion: { integracion: ContextoIntegracion },
+    @Param('clienteId') clienteId: string,
+    @Body() dto: MedicionDto,
+  ) {
+    return this.integracion.registrarMedicion(peticion.integracion.empresaId, clienteId, dto);
   }
 
   /** Estado actual del socio: se consulta al iniciar sesión para saber si su membresía sigue vigente. */

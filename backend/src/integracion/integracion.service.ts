@@ -50,7 +50,7 @@ export class IntegracionService {
         email: true,
         telefono: true,
         activo: true,
-        sucursal: { select: { id: true, nombre: true } },
+        sucursal: { select: { id: true, nombre: true, direccion: true, telefono: true } },
       },
     });
     if (!cliente) throw new NotFoundException('Socio no encontrado');
@@ -106,6 +106,47 @@ export class IntegracionService {
     }
 
     return this.fichaDeSocio(empresaId, cliente.id);
+  }
+
+  /**
+   * Guarda una medición (peso y estatura) que el socio registró en la app. Queda en su ficha como cualquier otra,
+   * a nombre del usuario más antiguo del gimnasio (la medición exige un usuario) y con una nota que dice de dónde
+   * viene. `origenId` es el id del registro en la app: si la app reintenta, no se duplica.
+   */
+  async registrarMedicion(
+    empresaId: string,
+    clienteId: string,
+    dto: { origenId: string; fecha: string; peso: number; talla: number },
+  ) {
+    const cliente = await this.prisma.cliente.findFirst({
+      where: { id: clienteId, empresaId, appActivadoEn: { not: null } },
+      select: { id: true },
+    });
+    if (!cliente) throw new NotFoundException('Socio no encontrado');
+
+    const existente = await this.prisma.medicionCorporal.findUnique({ where: { origenApp: dto.origenId } });
+    if (existente) return { ok: true, duplicada: true };
+
+    const usuario = await this.prisma.usuario.findFirst({
+      where: { empresaId, activo: true },
+      orderBy: { creadoEn: 'asc' },
+      select: { id: true },
+    });
+    if (!usuario) throw new BadRequestException('El gimnasio no tiene usuarios activos');
+
+    await this.prisma.medicionCorporal.create({
+      data: {
+        empresaId,
+        clienteId,
+        fecha: new Date(dto.fecha),
+        peso: dto.peso,
+        talla: dto.talla,
+        notas: 'Registrada por el socio desde la app',
+        usuarioId: usuario.id,
+        origenApp: dto.origenId,
+      },
+    });
+    return { ok: true, duplicada: false };
   }
 
   async confirmarActivacion(empresaId: string, clienteId: string) {

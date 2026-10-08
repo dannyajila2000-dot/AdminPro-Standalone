@@ -4,7 +4,9 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { AvisosAppService } from '../integracion/avisos-app.service';
 import type { Prisma } from '@prisma/client';
 import { EmailService } from '../auth/email.service';
 import {
@@ -56,6 +58,7 @@ export class ClientesService {
     private readonly prisma: PrismaService,
     private readonly membresiasService: MembresiasService,
     private readonly emailService: EmailService,
+    @Optional() private readonly avisos?: AvisosAppService,
   ) {}
 
   /** Si el socio ya tiene la app, está invitado o aún no: lo que muestra la ficha. */
@@ -418,6 +421,8 @@ export class ClientesService {
       include: INCLUDE_SUCURSAL,
     });
 
+    // Si es un socio con la app, ve enseguida su nombre, teléfono, sucursal o baja.
+    void this.avisos?.avisarSocio(id);
     return cliente;
   }
 

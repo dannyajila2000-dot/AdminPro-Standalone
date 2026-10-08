@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { AvisosAppService } from '../integracion/avisos-app.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { filtroSucursalCliente, puedeVerTodasSucursales } from '../common/utils/sucursal-scope';
 import { RenovarMembresiaDto } from './dto/renovar-membresia.dto';
@@ -15,7 +16,11 @@ function diasEntre(desde: Date, hasta: Date) {
 
 @Injectable()
 export class MembresiasService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    // Opcional para no romper pruebas que construyen el servicio a mano.
+    @Optional() private readonly avisos?: AvisosAppService,
+  ) {}
 
   private construirFila(
     cliente: {
@@ -213,6 +218,7 @@ export class MembresiasService {
       },
     });
 
+    void this.avisos?.avisarSocio(clienteId);
     return membresia;
   }
 
@@ -248,6 +254,7 @@ export class MembresiasService {
       data: { fechaVencimiento },
     });
 
+    void this.avisos?.avisarSocio(membresia.clienteId);
     return actualizada;
   }
 }

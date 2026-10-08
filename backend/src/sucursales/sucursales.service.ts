@@ -1,4 +1,5 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { AvisosAppService } from '../integracion/avisos-app.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { UpdateSucursalDto } from './dto/update-sucursal.dto';
@@ -10,7 +11,10 @@ const INCLUDE_SUCURSAL = {
 
 @Injectable()
 export class SucursalesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly avisos?: AvisosAppService,
+  ) {}
 
   findAll(empresaId: string, incluirInactivas = false) {
     return this.prisma.sucursal.findMany({
@@ -69,7 +73,7 @@ export class SucursalesService {
       await this.validarNombreUnico(empresaId, dto.nombre, id);
     }
 
-    return this.prisma.sucursal.update({
+    const actualizada = await this.prisma.sucursal.update({
       where: { id },
       data: {
         ...dto,
@@ -78,6 +82,8 @@ export class SucursalesService {
       },
       include: INCLUDE_SUCURSAL,
     });
+    void this.avisos?.avisarSucursal(id);
+    return actualizada;
   }
 
   async findPerfilSucursal(empresaId: string, id: string) {

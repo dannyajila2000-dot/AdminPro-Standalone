@@ -9,6 +9,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { RolesPermisosModule } from './roles-permisos/roles-permisos.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { IntegracionModule } from './integracion/integracion.module';
+import { AvisosAppModule } from './integracion/avisos-app.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { RecursosModule } from './recursos/recursos.module';
 import { TiposCitaModule } from './tipos-cita/tipos-cita.module';
@@ -39,6 +40,7 @@ import { MedicionesModule } from './mediciones/mediciones.module';
     RolesPermisosModule,
     ClientesModule,
     IntegracionModule,
+    AvisosAppModule,
     UploadsModule,
     RecursosModule,
     TiposCitaModule,
