@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useGetIdentity } from '@refinedev/core'
 import { axiosInstance } from '../../lib/axios'
 import type { Identity } from '../../lib/identity'
+import { puedeCambiarSuClave } from '../../lib/permisos'
 import { Avatar } from '../../components/ui/Avatar'
 import { CargandoPantalla } from '../../components/ui/CargandoPantalla'
 import { PerfilInfoForm, type PerfilValues } from './PerfilInfoForm'
@@ -23,6 +24,9 @@ export function PerfilPage() {
   const { data: identity } = useGetIdentity<Identity>()
   const [perfil, setPerfil] = useState<PerfilCompleto | null>(null)
   const [tab, setTab] = useState<TabId>('perfil')
+  // Las cuentas de demostración no ven la parte de seguridad ni pueden editar su perfil.
+  const puedeEditar = puedeCambiarSuClave(identity?.permisos)
+  const pestanas = puedeEditar ? TABS : TABS.filter((t) => t.id === 'perfil')
 
   const cargarPerfil = () => {
     axiosInstance.get<PerfilCompleto>('/usuarios/me').then(({ data }) => setPerfil(data))
@@ -71,7 +75,7 @@ export function PerfilPage() {
 
       <div className="mt-6 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-sm">
         <div className="flex gap-1 border-b border-[var(--color-border)] px-6">
-          {TABS.map((t) => (
+          {pestanas.map((t) => (
             <button
               key={t.id}
               type="button"
@@ -88,7 +92,11 @@ export function PerfilPage() {
         </div>
 
         <div className="p-6">
-          {tab === 'perfil' ? (
+          {tab === 'perfil' && !puedeEditar ? (
+            <p className="text-sm text-[var(--color-text-muted)]">
+              Esta cuenta es de demostración: el perfil no se puede editar.
+            </p>
+          ) : tab === 'perfil' ? (
             <PerfilInfoForm
               valoresIniciales={{
                 nombre: perfil.nombre,
