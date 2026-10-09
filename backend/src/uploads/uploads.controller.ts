@@ -27,7 +27,6 @@ export class UploadsController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @ApiConsumes('multipart/form-data')
-  @UseGuards(NoSoloLecturaGuard)
   @Post('imagen')
   @UseInterceptors(
     FileInterceptor('file', {
