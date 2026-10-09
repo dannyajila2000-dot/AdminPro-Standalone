@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { NoSoloLecturaGuard } from '../common/guards/no-solo-lectura.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { CheckPermissions } from '../common/decorators/permissions.decorator';
@@ -23,6 +24,7 @@ export class AsistenciaController {
     return this.asistenciaService.estadoActual(user.empresaId, user.id);
   }
 
+  @UseGuards(NoSoloLecturaGuard)
   @Post('marcar')
   marcar(@CurrentUser() user: RequestUser, @Body() dto: MarcarAsistenciaDto) {
     return this.asistenciaService.marcar(user.empresaId, user.id, dto);

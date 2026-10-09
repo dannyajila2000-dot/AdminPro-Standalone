@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { NoSoloLecturaGuard } from '../common/guards/no-solo-lectura.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { CheckPermissions } from '../common/decorators/permissions.decorator';
@@ -44,11 +45,13 @@ export class UsuariosController {
     return this.usuariosService.findOne(user.empresaId, user.id);
   }
 
+  @UseGuards(NoSoloLecturaGuard)
   @Patch('me')
   updateSelf(@CurrentUser() user: RequestUser, @Body() dto: UpdatePerfilDto) {
     return this.usuariosService.updateSelf(user.id, dto);
   }
 
+  @UseGuards(NoSoloLecturaGuard)
   @Patch('me/password')
   cambiarPassword(
     @CurrentUser() user: RequestUser,

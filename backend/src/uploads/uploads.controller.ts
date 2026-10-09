@@ -9,6 +9,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
+import { NoSoloLecturaGuard } from '../common/guards/no-solo-lectura.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import {
   CurrentUser,
@@ -26,6 +27,7 @@ export class UploadsController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @ApiConsumes('multipart/form-data')
+  @UseGuards(NoSoloLecturaGuard)
   @Post('imagen')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -57,6 +59,7 @@ export class UploadsController {
   }
 
   @ApiConsumes('multipart/form-data')
+  @UseGuards(NoSoloLecturaGuard)
   @Post('comprobante')
   @UseInterceptors(
     FileInterceptor('file', {
