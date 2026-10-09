@@ -24,6 +24,7 @@ function crear(socio: Socio) {
       findMany: jest.fn(async () => (estado.appCodigoHash ? [{ ...estado }] : [])),
       findFirst: jest.fn(async () => ({
         id: estado.id, nombres: 'Ana', apellidos: 'Pérez', email: estado.email, telefono: null, activo: true, sucursal: null,
+        appCodigoHash: estado.appCodigoHash, appCodigoExpiraEn: estado.appCodigoExpiraEn,
       })),
       update: jest.fn(async ({ data }: { data: Partial<Socio> }) => Object.assign(estado, data)),
       updateMany: jest.fn(async ({ data }: { data: Partial<Socio> }) => { Object.assign(estado, data); return { count: 1 }; }),
@@ -64,9 +65,16 @@ describe('códigos de activación', () => {
 
   it('confirmarActivacion lo consume y marca al socio como activado', async () => {
     const { servicio, estado } = crear(socioBase('123456'));
-    await servicio.confirmarActivacion('emp-1', 'cli-1');
+    await servicio.confirmarActivacion('emp-1', 'cli-1', '123456');
     expect(estado.appCodigoHash).toBeNull();
     expect(estado).toHaveProperty('appActivadoEn');
+  });
+
+  it('confirmarActivacion rechaza sin el código correcto (no se puede activar solo con el clienteId)', async () => {
+    const { servicio, estado } = crear(socioBase('123456'));
+    await expect(servicio.confirmarActivacion('emp-1', 'cli-1', '000000')).rejects.toBeInstanceOf(BadRequestException);
+    expect(estado.appCodigoHash).not.toBeNull();
+    expect(estado).not.toHaveProperty('appActivadoEn');
   });
 
   it('con un código incorrecto cuenta el intento, y al llegar al máximo anula el código', async () => {

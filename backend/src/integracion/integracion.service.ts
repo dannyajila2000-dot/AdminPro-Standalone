@@ -149,7 +149,24 @@ export class IntegracionService {
     return { ok: true, duplicada: false };
   }
 
-  async confirmarActivacion(empresaId: string, clienteId: string) {
+  /**
+   * Vuelve a exigir el código (ya validado en `validarActivacion`) antes de activar: si solo pidiera el
+   * clienteId, cualquiera con la x-api-key podría activar a un socio arbitrario sin conocer su código,
+   * saltándose por completo la protección de intentos/expiración.
+   */
+  async confirmarActivacion(empresaId: string, clienteId: string, codigo: string) {
+    const cliente = await this.prisma.cliente.findFirst({ where: { id: clienteId, empresaId } });
+    if (!cliente) throw new NotFoundException('Socio no encontrado');
+
+    if (
+      !cliente.appCodigoHash ||
+      !cliente.appCodigoExpiraEn ||
+      cliente.appCodigoExpiraEn < new Date() ||
+      !iguales(cliente.appCodigoHash, hashDeCodigo(cliente.id, codigo.trim()))
+    ) {
+      throw new BadRequestException(MENSAJE_CODIGO_INVALIDO);
+    }
+
     const resultado = await this.prisma.cliente.updateMany({
       where: { id: clienteId, empresaId },
       data: { appActivadoEn: new Date(), appCodigoHash: null, appCodigoExpiraEn: null, appIntentosFallidos: 0 },

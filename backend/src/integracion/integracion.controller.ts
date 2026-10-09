@@ -17,6 +17,11 @@ class ActivarDto {
 class ConfirmarDto {
   @IsString()
   clienteId!: string;
+
+  @IsString()
+  @Length(6, 6)
+  @Matches(/^\d{6}$/, { message: 'El código son 6 dígitos' })
+  codigo!: string;
 }
 
 class MedicionDto {
@@ -65,7 +70,7 @@ export class IntegracionController {
   @Post('activar/confirmar')
   @HttpCode(200)
   confirmar(@Req() peticion: { integracion: ContextoIntegracion }, @Body() dto: ConfirmarDto) {
-    return this.integracion.confirmarActivacion(peticion.integracion.empresaId, dto.clienteId);
+    return this.integracion.confirmarActivacion(peticion.integracion.empresaId, dto.clienteId, dto.codigo);
   }
 
   /** Peso y estatura que el socio registró en la app: quedan en su ficha de mediciones. */

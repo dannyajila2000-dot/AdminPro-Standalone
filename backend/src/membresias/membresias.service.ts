@@ -9,9 +9,18 @@ const UMBRAL_POR_VENCER_DIAS = 7;
 
 type EstadoMembresia = 'activo' | 'por_vencer' | 'vencido' | 'sin_membresia';
 
+// UTC-5 fijo (Ecuador no usa horario de verano). Usamos un offset fijo en vez de la hora local del
+// servidor porque gymProApp calcula sus propios días restantes con este mismo offset (ver
+// gymProApp/backend/src/common/fecha-ecuador.util.ts); si este servidor corriera en otra zona horaria
+// (p. ej. UTC en un host en la nube), los dos sistemas discreparían sobre si la membresía ya venció.
+const OFFSET_MINUTOS_ECUADOR = -5 * 60;
+
 function diasEntre(desde: Date, hasta: Date) {
-  const inicioDia = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return Math.round((inicioDia(hasta).getTime() - inicioDia(desde).getTime()) / 86_400_000);
+  const diaEcuador = (d: Date) => {
+    const local = new Date(d.getTime() + OFFSET_MINUTOS_ECUADOR * 60 * 1000);
+    return Date.parse(local.toISOString().slice(0, 10) + 'T00:00:00Z');
+  };
+  return Math.round((diaEcuador(hasta) - diaEcuador(desde)) / 86_400_000);
 }
 
 @Injectable()
