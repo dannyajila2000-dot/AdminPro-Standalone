@@ -1,5 +1,11 @@
 import { ForbiddenException, type ExecutionContext } from '@nestjs/common';
-import { esSoloLectura, NoSoloLecturaGuard } from './no-solo-lectura.guard';
+import {
+  esSoloLectura,
+  NoSoloLecturaGuard,
+  PERMISO_SIN_CAMBIO_DE_CLAVE,
+  puedeCambiarSuClave,
+  PuedeCambiarSuClaveGuard,
+} from './no-solo-lectura.guard';
 
 const contexto = (permisos: string[] | undefined, conUsuario = true) =>
   ({
@@ -21,5 +27,23 @@ describe('cuentas de solo lectura', () => {
 
   it('deja pasar a quien puede escribir', () => {
     expect(new NoSoloLecturaGuard().canActivate(contexto(['clientes.leer', 'clientes.crear']))).toBe(true);
+  });
+});
+
+describe('cambiar la propia clave', () => {
+  it('una cuenta con el marcador no puede, aunque escriba en el resto del sistema', () => {
+    expect(puedeCambiarSuClave(['clientes.leer', 'clientes.crear', PERMISO_SIN_CAMBIO_DE_CLAVE])).toBe(false);
+    expect(() =>
+      new PuedeCambiarSuClaveGuard().canActivate(contexto(['clientes.crear', PERMISO_SIN_CAMBIO_DE_CLAVE])),
+    ).toThrow(ForbiddenException);
+  });
+
+  it('una cuenta de solo lectura tampoco', () => {
+    expect(puedeCambiarSuClave(['clientes.leer'])).toBe(false);
+  });
+
+  it('el resto sí, y un Admin con el marcador (por error) no queda bloqueado', () => {
+    expect(puedeCambiarSuClave(['clientes.crear'])).toBe(true);
+    expect(puedeCambiarSuClave(['usuarios.actualizar', PERMISO_SIN_CAMBIO_DE_CLAVE])).toBe(true);
   });
 });
